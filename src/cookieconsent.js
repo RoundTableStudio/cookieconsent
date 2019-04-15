@@ -2,6 +2,8 @@
   // stop from running again, if accidently included more than once.
   if (cc.hasInitialised) return;
 
+  var noCookieFallbackData = null;
+
   var util = {
     // https://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
     escapeRegExp: function(str) {
@@ -38,7 +40,7 @@
       var value = '; ' + document.cookie;
       var parts = value.split('; ' + name + '=');
       return parts.length < 2
-        ? undefined
+        ? noCookieFallbackData
         : parts
             .pop()
             .split(';')
@@ -46,6 +48,11 @@
     },
 
     setCookie: function(name, value, expiryDays, domain, path, secure) {
+      noCookieFallbackData = value;
+      if (value !== 'allow' && value !== '') {
+        return;
+      }
+
       var exdate = new Date();
       exdate.setDate(exdate.getDate() + (expiryDays || 365));
 
@@ -856,7 +863,7 @@
         this.close(true);
       }
       if (util.hasClass(btn, 'cc-revoke')) {
-        this.revokeChoice();
+        this.open();
       }
     }
 
